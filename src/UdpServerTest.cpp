@@ -2,9 +2,11 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
 
-void onMessageCallback(char *d, size_t len)
+void onMessageCallback(hl::UdpSession_ptr session, char *d, size_t len)
 {
   std::cout << "onMessageCallback:" << std::string(d, len) << std::endl;
+
+  session->send(d, len);
 }
 
 int main(int argc, char *argv[])
@@ -14,8 +16,8 @@ int main(int argc, char *argv[])
     boost::asio::io_service io_service;
     //hl::UdpServer server(io_service,9999);
     //server.start();
-    boost::shared_ptr<hl::UdpServer> server = boost::make_shared<hl::UdpServer>(io_service, 9999);    
-    server->setMessageCallback(boost::bind(&onMessageCallback, _1, _2));
+    boost::shared_ptr<hl::UdpServer> server = boost::make_shared<hl::UdpServer>(io_service, 9999);
+    server->setMessageCallback(boost::bind(&onMessageCallback, _1, _2, _3));
     server->start();
 
     io_service.run();

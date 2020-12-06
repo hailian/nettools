@@ -23,14 +23,15 @@ namespace hl
   {
 
   public:
-    UdpSession(boost::asio::io_service &io_service,boost::asio::ip::udp::endpoint &endpoint)
-        : endpoint_(endpoint),
-          socket_(io_service)
-
+    UdpSession(boost::asio::io_service &io_service, const std::string &ip_address, const short ip_port)
+        : endpoint_(boost::asio::ip::address::from_string(ip_address), ip_port),
+          socket_(io_service, endpoint_.protocol())
     {
-      //socket_.set_option()
-      //socket_.open(listen_endpoint.protocol());
-      socket_.open(endpoint_.protocol());
+    }
+
+    UdpSession(boost::asio::io_service &io_service, short port)
+        : socket_(io_service, boost::asio::ip::udp::endpoint(boost::asio::ip::udp::v4(), port))
+    {
     }
 
     void start()
@@ -70,7 +71,7 @@ namespace hl
       {
         if (mesgcb_)
         {
-          mesgcb_(data_, bytes_recvd);
+          mesgcb_(shared_from_this(), data_, bytes_recvd);
         }
         socket_.async_receive_from(
             boost::asio::buffer(data_, max_length), endpoint_,
@@ -92,8 +93,6 @@ namespace hl
 
     MessageCallback mesgcb_;
   };
-
-  typedef boost::shared_ptr<UdpSession > UdpSession_ptr;
 
 } // namespace hl
 

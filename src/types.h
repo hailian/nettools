@@ -11,6 +11,11 @@
 
 #include <boost/function.hpp>
 
-typedef boost::function<void(char *, size_t)> MessageCallback;
+namespace hl{
+    class UdpSession;
+    typedef boost::shared_ptr<UdpSession > UdpSession_ptr;
+
+}
+typedef boost::function<void(hl::UdpSession_ptr ,char *, size_t)> MessageCallback;
 
 #endif
